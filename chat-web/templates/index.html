@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaf4ff">
+  <title>Buscador laboral</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Buscador laboral, inicio">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span>Buscador laboral</span>
+      </a>
+      <span class="local-badge"><span class="status-dot"></span> Asistente local</span>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow">TU PRÓXIMO PASO PROFESIONAL</div>
+      <h1 id="page-title">Encontrá oportunidades<br><span>que encajen con vos.</span></h1>
+      <p>Contame qué puesto buscás, en qué país y con qué modalidad. Qwen va a consultar los avisos y te los presenta acá.</p>
+      <div class="suggestions" aria-label="Consultas de ejemplo">
+        <button type="button" class="suggestion">Administrador de sistemas en Chile, híbrido</button>
+        <button type="button" class="suggestion">Puestos remotos de soporte TI en Argentina</button>
+      </div>
+    </section>
+
+    <section class="chat-card" aria-label="Chat de búsqueda laboral">
+      <div class="chat-heading">
+        <div class="assistant-avatar" aria-hidden="true">✦</div>
+        <div>
+          <h2>Asistente de búsqueda</h2>
+          <p><span class="status-dot"></span> Conectado con n8n y Qwen</p>
+        </div>
+        <button id="new-chat" class="new-chat" type="button" title="Iniciar una conversación nueva">Nueva conversación</button>
+      </div>
+
+      <div id="messages" class="messages" aria-live="polite" aria-relevant="additions text">
+        <article class="message assistant-message">
+          <div class="message-avatar" aria-hidden="true">✦</div>
+          <div class="bubble markdown-body">
+            <p>¡Hola! Puedo ayudarte a buscar ofertas laborales. Decime el puesto, el país y si preferís una modalidad remota, híbrida o presencial.</p>
+          </div>
+        </article>
+      </div>
+
+      <div id="typing" class="typing hidden" aria-live="polite">
+        <span></span><span></span><span></span><small>Qwen está buscando…</small>
+      </div>
+
+      <form id="chat-form" class="composer">
+        <label class="sr-only" for="message-input">Escribí tu consulta</label>
+        <textarea id="message-input" rows="1" maxlength="4000" placeholder="Escribí tu consulta…" required></textarea>
+        <button id="send-button" class="send-button" type="submit" aria-label="Enviar mensaje">
+          <span>Enviar</span><span aria-hidden="true">↗</span>
+        </button>
+      </form>
+      <div class="composer-note">Enter para enviar · Shift + Enter para nueva línea</div>
+    </section>
+
+    <footer>Los avisos se consultan en su fuente original. Revisá cada publicación antes de postularte.</footer>
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

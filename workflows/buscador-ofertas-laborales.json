@@ -1,0 +1,386 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.getonbrd.com/api/v0/search/jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "administrador de sistemas"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -320,
+        -112
+      ],
+      "id": "20ffdf41-5df5-4ca2-9163-b4d3ece128ae",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "dcb5a755-47b4-4d0e-8042-cdf629699583",
+              "leftValue": "={{ $json.attributes.title }}",
+              "rightValue": "=Sistemas",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "887628be-0581-4151-a58c-1f8d436212ef",
+              "leftValue": "={{ $json.attributes.remote_modality }}",
+              "rightValue": "hybrid",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "91d61588-b73c-4ca0-a519-95a18e6740e8",
+              "leftValue": "={{ $json.attributes.countries }}",
+              "rightValue": "=chile",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        112,
+        -112
+      ],
+      "id": "db6c587f-b788-4429-a800-4c4ab63bbfe9",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        -112
+      ],
+      "id": "531c9351-f27e-4491-9568-f886f2945de5",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -896,
+        -112
+      ],
+      "id": "03b6f121-a970-4ff9-8434-eb90c726c86d",
+      "name": "When chat message received",
+      "webhookId": "e2bc3c2b-afef-4cdd-ab03-aeb30ab8fa3d"
+    },
+    {
+      "parameters": {
+        "model": "qwen3.5:9b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        128
+      ],
+      "id": "088c0a8b-877b-46db-a480-d0e4dc62092e",
+      "name": "Ollama Chat Model"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Sos un asistente de búsqueda laboral y respondés en español.\n\nCuando el usuario pida buscar empleos, usá la herramienta “Buscar avisos Get on Board”. No inventes avisos: basá la respuesta únicamente en los resultados recibidos.\n\nEl usuario puede buscar empleos de cualquier profesión o rubro. Usá el puesto, profesión o especialidad que indique como palabras clave para la búsqueda. En el parámetro query enviá solo el nombre breve del puesto, con un máximo de 12 palabras. No agregues instrucciones, ubicación, país, modalidad ni una lista de habilidades. Por ejemplo: “administrador de sistemas”, “contador”, “médico” o “carpintero”.\n\nSi la herramienta tiene parámetros separados para país o ubicación, enviá allí el país o la ubicación solicitados. No los incluyas en query.\n\nDespués de recibir los resultados, aplicá los filtros solicitados. Para filtrar por modalidad, revisá attributes.remote_modality en cada resultado. Si el usuario pide híbrido, mostrá únicamente los avisos cuyo valor sea “hybrid”. No uses el campo remote para decidir si un puesto es híbrido.\n\nPresentá hasta cinco resultados que cumplan los filtros, incluyendo título, país, modalidad y enlace original cuando esos datos estén disponibles. Si no hay resultados que cumplan los filtros, decilo claramente."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -640,
+        -112
+      ],
+      "id": "68817879-4fb4-4ce7-a52b-3e14aa69f15a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "url": "https://www.getonbrd.com/api/v0/search/jobs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "=query",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Busca empleos. El parámetro query debe contener solo palabras clave breves del puesto, máximo 12 palabras.`, 'string') }}"
+            },
+            {
+              "name": "country_code",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `country_code debe ser el código de dos letras del país: Argentina AR, Chile CL. No incluyas el país dentro de query.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        -544,
+        128
+      ],
+      "id": "efa69c01-1820-4c6a-b56e-f5d6cca4e8b3",
+      "name": "Buscar avisos Get on Board"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "job_listings",
+          "mode": "list",
+          "cachedResultName": "job_listings"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "job_id": "={{ $json.id }}",
+            "title": "={{ $json.attributes.title }}",
+            "description": "={{ $json.attributes.description }}",
+            "remote_modality": "={{ $json.attributes.remote_modality }}",
+            "published_at": "={{ $json.attributes.published_at }}",
+            "public_url": "={{ $json.links.public_url }}"
+          },
+          "matchingColumns": [
+            "job_id"
+          ],
+          "schema": [
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "remote_modality",
+              "displayName": "remote_modality",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "public_url",
+              "displayName": "public_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "removed": false
+            },
+            {
+              "id": "published_at",
+              "displayName": "published_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.8,
+      "position": [
+        336,
+        -112
+      ],
+      "id": "ff6d5fde-3bd7-48e1-972f-47f5e44fc399",
+      "name": "Insert or update rows in a table"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b17ebc13-b4b5-48c6-a17a-b0f4cc4ba5f6",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        560,
+        -112
+      ],
+      "id": "b9e79229-4c19-44e1-907a-8b9f3df5b2c4",
+      "name": "Edit Fields"
+    }
+  ],
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Insert or update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar avisos Get on Board": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert or update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
